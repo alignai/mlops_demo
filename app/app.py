@@ -136,7 +136,7 @@ app.layout = dbc.Container(html.Div(children=[
         ]),
         html.Div(["Select Model Type",
             dcc.Dropdown(
-                ['Linear', 'Random Forest'],
+                ['Linear', 'Random_Forest'],
                 placeholder='Linear',
                 id='model-type',
                 value=['Linear'],
