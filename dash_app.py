@@ -45,7 +45,37 @@ app.layout = html.Div(children=[
     ]),
     html.Br(),
     html.Div([
-        html.H2(children="Model Training")
+        html.H2(children="Model Training"),
+        html.Div(["Select features to use in the model",
+            dcc.Dropdown(
+                df.columns[:-1],
+                placeholder='Features',
+                id='features-to-use',
+                value=[df.columns[1]],
+                multi=True
+            ),
+        ]),
+        html.Div(["Select Model Type",
+            dcc.Dropdown(
+                ['Linear', 'Random Forest'],
+                placeholder='Linear',
+                id='model-type',
+                value=['Linear'],
+            ),
+        ]),
+        html.Div(["Normalize?",
+            dcc.Dropdown(
+                ['True', 'False'],
+                placeholder='True',
+                id='normalize-model',
+                value=['True'],
+            ),
+        ]),
+        html.Div(["Test Size",
+            dcc.Slider(0.1, 1, 0.1,
+               value=0.1 ,
+               id='my-slider'),
+        ]),
     ])
 ])
 
