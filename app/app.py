@@ -25,7 +25,10 @@ server = app.server
 
 # assume you have a "long-form" data frame
 # see https://plotly.com/python/px-arguments/ for more options
-data_file = os.path.join('app', 'space_trip.csv')
+__location__ = os.path.realpath(
+    os.path.join(os.getcwd(), os.path.dirname(__file__)))
+
+data_file = os.path.join(__location__, 'space_trip.csv')
 df = pd.read_csv(data_file, index_col=0)
 df['Month'] = pd.to_datetime(df['Month'])
 df.set_index('Month', inplace=True)
