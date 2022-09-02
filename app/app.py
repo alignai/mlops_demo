@@ -1,9 +1,18 @@
-from dash import Dash, html, dcc, Input, Output
+from dash import Dash, html, dcc, Input, Output, State
 import dash_bootstrap_components as dbc
 import os
 import plotly.express as px
+import plotly.graph_objects as go
 import pandas as pd
 import numpy as np
+
+# SK Learn
+from sklearn.linear_model import SGDRegressor, LinearRegression
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.model_selection import RandomizedSearchCV
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error, make_scorer, r2_score
+from sklearn.preprocessing import MinMaxScaler
 
 try:
     debug = False if os.environ["DASH_DEBUG_MODE"] == "False" else True
@@ -16,19 +25,76 @@ server = app.server
 
 # assume you have a "long-form" data frame
 # see https://plotly.com/python/px-arguments/ for more options
-
-df = pd.read_csv('space_trip.csv', index_col=0)
+data_file = os.path.join('app', 'space_trip.csv')
+df = pd.read_csv(data_file, index_col=0)
 df['Month'] = pd.to_datetime(df['Month'])
 df.set_index('Month', inplace=True)
 df['Time'] = np.arange(len(df.index))
 
-app.layout = html.Div(children=[
+
+# SK Learn 
+model_inits = {'Linear': LinearRegression(
+), 'Random_Forest': RandomForestRegressor()}
+
+def model_training_block(df, select_cols, model_type, test_size=0.2, normalize=True):
+    """Return model test set performance plot and errors
+        Args:
+            df: (Dataframe) timeseries data with index as datetime type
+            select_cols: (list[str]) list of strings for columns to use in model
+        Returns:
+            Fitted Model + Test Peformance of Model plot + two metric measures
+    """
+    X = df[select_cols]
+    y = df['Fuel']
+
+    xtrain, xtest, ytrain, ytest = train_test_split(
+        X, y, test_size=test_size, shuffle=False)
+
+    if normalize:
+        scaler = MinMaxScaler()
+        xtrain = scaler.fit_transform(xtrain)
+        xtest = scaler.transform(xtest)
+
+    model = model_inits[model_type]
+
+    model.fit(xtrain, ytrain)
+
+    # Make Predictions
+    ytrain_pred = model.predict(xtrain)
+    train_mse = mean_squared_error(ytrain_pred, ytrain)
+    train_r2 = r2_score(ytrain_pred, ytrain)
+
+    ypred = model.predict(xtest)
+    test_mse = mean_squared_error(ytest, ypred)
+    test_r2 = r2_score(ytest, ypred)
+
+    x_ax = X.iloc[-len(xtest):].index
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=x_ax, y=ytest,
+                             mode='markers',
+                             name='markers'))
+    fig.add_trace(go.Scatter(x=x_ax, y=ypred,
+                             mode='lines+markers',
+                             name='lines+markers'))
+    fig.update_layout(title='Model Performance')
+
+    return model, fig, test_mse, test_r2
+
+
+def model_inference_app(model, feature_values):
+    """
+    """
+    num_features = model.n_features_in_
+
+    return model.predict(np.array(feature_values[:num_features]).reshape(1, -1))[0]
+
+app.layout = dbc.Container(html.Div(children=[
     html.H1(children='AlignAI MLOps'),
     html.Div(children='''
         Dash: A web application framework for your data.
     '''),
     html.H2(children='Data Exploration Plots'),
-    html.Div([
+    html.Div([html.P("Select the model date range:"),
             dcc.DatePickerRange(
                 id='model-date-range',
                 start_date_placeholder_text="Start Date",
@@ -40,7 +106,7 @@ app.layout = html.Div(children=[
                 end_date=df.index[-1]
             ),
         ]),
-    html.Div([
+    html.Div([html.P("Select the features to compare:"),
         dcc.Dropdown(
                 df.columns[:-1],
                 placeholder='Select features to compare',
@@ -49,6 +115,7 @@ app.layout = html.Div(children=[
                 multi=True
             ),
     ]),
+    html.Br(),
     html.Div([
         dcc.Graph(id='data-exploration-graph')
     ]),
@@ -83,10 +150,16 @@ app.layout = html.Div(children=[
         html.Div(["Test Size",
             dcc.Slider(0.1, 1, 0.1,
                value=0.1 ,
-               id='my-slider'),
+               id='test-size'),
         ]),
-    ])
-])
+        html.Button('Submit', id='submit-val', n_clicks=0),
+        html.Br(),
+        html.Div(id='model-training-output',
+             children='Enter a value and press submit')
+    ]),
+    html.H2(children="Inference App"),
+    
+], style={'padding': 10, 'flex': 1}))
 
 
 @app.callback(
@@ -102,6 +175,36 @@ def update_figure(start_date, end_date, feature_list):
         fig = px.line(tmp_df, x=tmp_df.index, y = tmp_df.columns, markers=True)
         fig.update_layout(title=f'Space Agency Features Plot')
     return fig
+
+@app.callback(
+    Output('model-training-output', 'children'),
+    Input('features-to-use', 'value'),
+    Input('model-type', 'value'),
+    Input('normalize-model', 'value'),
+    Input('test-size', 'value'),
+    Input('submit-val', 'n_clicks'),
+)
+def train_model(features_to_use, model_type, normalize_model, test_size, value):
+    if features_to_use and model_type and normalize_model and test_size and value:
+        output_text = f"""
+        Features to use: {features_to_use}.
+        Model type: {model_type}.
+        Normalize Model: {normalize_model}.
+        Test Size: {test_size}.
+        The value is {value}
+        """
+        fitted_model, figure, metric1, metric2 = model_training_block(
+            df, features_to_use, model_type, test_size, normalize_model)
+        
+        print(metric1)
+        print(metric2)
+        metric1 = str(np.round(metric1, 3))
+        metric2 = str(np.round(metric2, 3))
+        return html.Div([
+            html.P(f"Test MSE: {metric1}"),
+            html.P(f"Test R2: {metric2}"), 
+            dcc.Graph(figure=figure)
+            ])
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port="8050", debug=debug)
