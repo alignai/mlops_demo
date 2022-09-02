@@ -14,6 +14,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error, make_scorer, r2_score
 from sklearn.preprocessing import MinMaxScaler
 
+import os
 ### Helper Functions and Dictionaries ###
 
 model_inits = {'Linear': LinearRegression(
@@ -98,7 +99,8 @@ st.title("Mock-Up Dashboard")
 st.header("Data Exploration Plots")
 
 # Preprocess data file
-data = pd.read_csv("space_trip.csv", index_col=0)
+data_file = os.path.join('app', 'space_trip.csv')
+data = pd.read_csv(data_file, index_col=0)
 data['Month'] = pd.to_datetime(data['Month'])
 data.set_index('Month', inplace=True)
 data['Time'] = np.arange(len(data.index))
@@ -207,5 +209,6 @@ with col8:
 
 if st.button('Make Inference'):
     feature_values = [trips, passengers]
+    print(feature_values)
     st.metric("Model Inference: ", model_inference_app(
         fitted_model, feature_values))

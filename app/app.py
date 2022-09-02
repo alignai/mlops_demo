@@ -158,7 +158,15 @@ app.layout = dbc.Container(html.Div(children=[
              children='Enter a value and press submit')
     ]),
     html.H2(children="Inference App"),
-    
+    html.P('Number of Trips:'),
+    dcc.Input(id='number-of-trips', type='number', min=0.01, max=0.25, step=0.01),
+    html.P('Total Passengers:'),
+    dcc.Input(id='total-passengers', type='number', min=0.01, max=0.50, step=0.01),
+    html.Br(),
+    html.Button('Submit', id='inference-app-submit-val', n_clicks=0),
+    html.Br(),
+    html.Div(id='inference-app-output',
+             children='Enter a value and press submit')
 ], style={'padding': 10, 'flex': 1}))
 
 
@@ -204,6 +212,42 @@ def train_model(features_to_use, model_type, normalize_model, test_size, value):
             html.P(f"Test MSE: {metric1}"),
             html.P(f"Test R2: {metric2}"), 
             dcc.Graph(figure=figure)
+            ])
+
+@app.callback(
+    Output('inference-app-output', 'children'),
+    Input('features-to-use', 'value'),
+    Input('model-type', 'value'),
+    Input('normalize-model', 'value'),
+    Input('test-size', 'value'),
+    Input('number-of-trips', 'value'),
+    Input('total-passengers', 'value'),
+    Input('inference-app-submit-val', 'n_clicks'),
+)
+def model_inference(features_to_use, model_type, normalize_model, test_size, num_trips, total_passengers, value):
+    if features_to_use and model_type and normalize_model and test_size and value and num_trips and total_passengers:
+        output_text = f"""
+        Features to use: {features_to_use}.
+        Model type: {model_type}.
+        Normalize Model: {normalize_model}.
+        Test Size: {test_size}.
+        The value is {value}
+        Number of trips: {num_trips}
+        Total Passengers: {total_passengers}
+        """
+        fitted_model, figure, metric1, metric2 = model_training_block(
+            df, features_to_use, model_type, test_size, normalize_model)
+        
+        feature_values = [num_trips, total_passengers]
+        
+        output_value = model_inference_app(
+        fitted_model, feature_values)
+        # print(metric1)
+        # print(metric2)
+        # metric1 = str(np.round(metric1, 3))
+        # metric2 = str(np.round(metric2, 3))
+        return html.Div([
+            html.H3(f"Model Inference: {output_value}")
             ])
 
 if __name__ == '__main__':
