@@ -1,9 +1,18 @@
 from dash import Dash, html, dcc, Input, Output
+import dash_bootstrap_components as dbc
+import os
 import plotly.express as px
 import pandas as pd
 import numpy as np
 
-app = Dash(__name__)
+try:
+    debug = False if os.environ["DASH_DEBUG_MODE"] == "False" else True
+except:
+    debug = True
+
+app = Dash(__name__, external_stylesheets=[dbc.themes.CYBORG])
+
+server = app.server
 
 # assume you have a "long-form" data frame
 # see https://plotly.com/python/px-arguments/ for more options
@@ -95,4 +104,4 @@ def update_figure(start_date, end_date, feature_list):
     return fig
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run(host="0.0.0.0", port="8050", debug=debug)

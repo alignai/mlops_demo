@@ -1,0 +1,10 @@
+#Base Image to use
+FROM python:3.10.4-slim
+
+ENV DASH_DEBUG_MODE True
+COPY ./app /app
+WORKDIR /app
+RUN set -ex && \
+    pip install -r requirements.txt
+EXPOSE 8050
+ENTRYPOINT ["python", "app.py"]
