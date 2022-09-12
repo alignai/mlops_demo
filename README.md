@@ -24,4 +24,3 @@ The main demo for the MLOps course
 
 ### Building with Docker
 **Reference**: [Deploying Streamlit apps to Google App Engine in 5 simple steps.](https://medium.com/analytics-vidhya/deploying-streamlit-apps-to-google-app-engine-in-5-simple-steps-5e2e2bd5b172)
-
