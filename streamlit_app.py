@@ -94,7 +94,7 @@ def model_inference_app(model, feature_values):
 
 
 ### Begin Main Code #####
-st.title("Mock-Up Dashboard")
+st.title("Align AI Machine Learning Operations")
 
 st.header("Data Exploration Plots")
 
