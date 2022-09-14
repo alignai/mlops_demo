@@ -2,25 +2,14 @@
 The main demo for the MLOps course
 
 
-## Running the container
-### Dev
-`docker build -f Dockerfile.dev -t alignai-mlops-demo .`
-`docker run -p 8080:8080 -v --rm alignai-mlops-demo`
+## Running the app
 
-### Prod
-`docker build -f Dockerfile -t alignai-mlops-demo-prod .`
-`docker run -p 8080:8080 --rm alignai-mlops-demo-prod`
+## Streamlit
+This is a [Streamlit](https://streamlit.io/) based interactive Machine Learning Operations Demonstration.
 
-## Building and Deploying to Google App Engine
+1. The app can be run locally by installing the packages in `requirements.txt` and running `streamlit run Main.py`
+2. The app can be deployed to Streamlit Cloud by following the instructions here: [Streamlit Deployment](https://docs.streamlit.io/streamlit-cloud/get-started/deploy-an-app)
+3. The app can be deployed to other services using the [App Deployment Guide](https://discuss.streamlit.io/t/streamlit-deployment-guide-wiki/5099)
 
-### Setup
-1. [Read over the Google Tutorial on Deployment](https://cloud.google.com/appengine/docs/standard/python3/create-app)
-2. [Create a new project](https://cloud.google.com/resource-manager/docs/creating-managing-projects)
-3. [Go to the project selector](https://console.cloud.google.com/projectselector2/home/dashboard?_ga=2.80259487.928451217.1659464842-1605512166.1659464842&_gac=1.85381227.1659529353.Cj0KCQjwuaiXBhCCARIsAKZLt3nR_J-dUuSM9q2dhTtPPeOaU7Prn6CJeuDTuqfoj85Wq-fIKpKFxO4aAhWqEALw_wcB)
-4. [Enable the API](https://console.cloud.google.com/flows/enableapi?apiid=cloudbuild.googleapis.com&_ga=2.80259487.928451217.1659464842-1605512166.1659464842&_gac=1.85381227.1659529353.Cj0KCQjwuaiXBhCCARIsAKZLt3nR_J-dUuSM9q2dhTtPPeOaU7Prn6CJeuDTuqfoj85Wq-fIKpKFxO4aAhWqEALw_wcB)
-5. [Install](https://cloud.google.com/sdk/docs/install) and [initialize](https://cloud.google.com/sdk/docs/initializing) the Google Cloud CLI.
-6. Initialize the app:
-    `gcloud app create --project=[YOUR_PROJECT_ID]`
-
-### Building with Docker
-**Reference**: [Deploying Streamlit apps to Google App Engine in 5 simple steps.](https://medium.com/analytics-vidhya/deploying-streamlit-apps-to-google-app-engine-in-5-simple-steps-5e2e2bd5b172)
+### Running locally
+* The app can be run locally by installing the packages in `requirements.txt` and running `streamlit run Main.py`.
