@@ -10,7 +10,7 @@ st.set_page_config(
     page_icon="🚀",
     )
 
-st.sidebar.title("Model Training")
+st.sidebar.title("Model Inference")
 
 build_header("AlignAI MLOps")
 
