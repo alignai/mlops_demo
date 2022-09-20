@@ -60,14 +60,10 @@ with st.container():
     col5, col6 = st.columns(2)
 
     with col5:
-        normalize = st.selectbox('Normalize?',
-                                 (True, False))
-
-    with col6:
         test_size = st.slider('Test Size', 0.0, 1.0, 0.1)
 
     fitted_model, figure, metric1, metric2 = model_training_block(
-        data, select_cols, model_type, test_size, normalize)
+        data, select_cols, model_type, test_size, normalize=True)
     col7, col8 = st.columns(2)
 
     with col7:
@@ -79,5 +75,9 @@ with st.container():
     if st.button('Make Inference'):
         feature_values = [trips, passengers]
         print(feature_values)
-        st.metric("Model Inference: ", model_inference_app(
-            fitted_model, feature_values))
+        pred_val =  model_inference_app(
+            fitted_model, feature_values)
+        pred_val = pred_val / 1000000
+        pred_val = np.round(pred_val, 0)
+        st.markdown("### Model Inference")
+        st.markdown(f"Units of Jet Fuel (Millions): {pred_val}")

@@ -62,13 +62,13 @@ with st.container():
         normalize = st.selectbox('Normalize?',
                                  (True, False))
 
-    with col6:
-        test_size = st.slider('Test Size', 0.0, 1.0, 0.1)
+    with col5:
+        test_size = st.slider('Test Size', 0.1, 0.9, 0.3)
 
     if st.button('Start Training'):
         fitted_model, figure, metric1, metric2 = model_training_block(
             data, select_cols, model_type, test_size, normalize)
         st.plotly_chart(figure, use_container_width=True)
         m1, m2 = st.columns(2)
-        m1.metric("Test MSE", str(np.round(metric1, 3)))
-        m2.metric("Test R2", str(np.round(metric2, 3)))
+        m1.metric("Test MSE", str(np.round(metric1, 0)))
+        m2.metric("Test R2", str(np.round(metric2, 0)))
